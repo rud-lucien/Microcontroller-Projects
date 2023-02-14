@@ -1,0 +1,44 @@
+{
+	"folders": [
+		{
+			"path": "../../../Julia Projects"
+		},
+		{
+			"name": "M5Stack Universal IOT Experiment Board",
+			"path": "../M5Stack Universal IOT Experiment Board"
+		},
+		{
+			"name": "M5Stack Relay Code",
+			"path": "../M5Stack Relay Code"
+		},
+		{
+			"name": "M5Stack_relay_control_with_serial_rs232",
+			"path": "../M5Stack_relay_control_with_serial_rs232"
+		},
+		{
+			"name": "M5Stack_relay_control_with_serial_rs232_v2",
+			"path": "../M5Stack_relay_control_with_serial_rs232_v2"
+		},
+		{
+			"name": "M5Stack_2_raly_control_with_serial_rs232_v1",
+			"path": "../M5Stack_2_raly_control_with_serial_rs232_v1"
+		},
+		{
+			"name": "Serial_relay_code",
+			"path": "."
+		},
+		{
+			"name": "Serial_relay_code_v2",
+			"path": "../Serial_relay_code_v2"
+		},
+		{
+			"name": "lvgl_gui_test",
+			"path": "../lvgl_gui_test"
+		},
+		{
+			"name": "Serial_relay_code_v3",
+			"path": "../Serial_relay_code_v3"
+		}
+	],
+	"settings": {}
+}
