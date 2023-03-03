@@ -8,7 +8,12 @@
 //	<01> : relay 1 on
 //	<10> : relay 2 on
 //	<11> : both relays on
-
+//  <f>  : flush Serial1 write
+unsigned long previousTime = 0;
+byte seconds;
+byte minutes;
+byte hours;
+byte days;
 const int RELAY_1 = 32; // the board pin, which connects to the IN pin of relay 1
 const int RELAY_2 = 33; // the board pin, which connects to the IN pin of relay 2
 const unsigned long timeout_ms = 20;
@@ -25,18 +30,58 @@ void setup()
   pinMode(RELAY_2, OUTPUT);                  // Set pin 22 to output mode.
   digitalWrite(RELAY_1, LOW);                // Set relay 1 to off at startup
   digitalWrite(RELAY_2, LOW);                // Set relay 2 to off at startup
-  M5.Lcd.print("Relay Control with Serial RS-232: v3");
-  M5.Lcd.drawLine(0, 10, 320, 10, WHITE);
-  M5.Lcd.setCursor(10, 40);
-  M5.Lcd.print("RELAY_1 STATE IS NOW: OFF");
-  M5.Lcd.setCursor(10, 50);
-  M5.Lcd.print("RELAY_2 STATE IS NOW: OFF");
+  M5.Lcd.print("Relay Control with Serial RS-232: v4");
+  M5.Lcd.drawLine(0, 10, 320, 10, BLUE);
   M5.Lcd.setCursor(10, 20);
+  M5.Lcd.println("M5 has been running for:");
+  M5.Lcd.setCursor(10, 70);
+  M5.Lcd.print("RELAY_1 STATE IS NOW: OFF");
+  M5.Lcd.setCursor(10, 80);
+  M5.Lcd.print("RELAY_2 STATE IS NOW: OFF");
+  M5.Lcd.setCursor(10, 50);
   M5.Lcd.print("<M5 is ready for relay commands>");
   Serial1.write("<M5 is ready for relay commands>");
   Serial1.flush();
   Serial.print("<M5 is ready for relay commands>");
   Serial.println();
+}
+
+void elapsedTime()
+{
+  if (millis() >= (previousTime))
+  {
+    previousTime = previousTime + 1000; // use 100000 for uS
+    seconds = seconds + 1;
+    if (seconds == 60)
+    {
+      seconds = 0;
+      minutes = minutes + 1;
+    }
+    if (minutes == 60)
+    {
+      minutes = 0;
+      hours = hours + 1;
+    }
+    if (hours == 24)
+    {
+      hours = 0;
+      days = days + 1;
+    }
+
+    M5.Lcd.setCursor(10, 30);
+    M5.Lcd.print(days, DEC);
+    M5.Lcd.print(" Days|");
+    M5.Lcd.print(" ");
+    M5.Lcd.print(hours, DEC);
+    M5.Lcd.print(" Hours|");
+    M5.Lcd.print(" ");
+    M5.Lcd.print(minutes, DEC);
+    M5.Lcd.print(" Minutes|");
+    M5.Lcd.print(" ");
+    M5.Lcd.print(seconds, DEC);
+    M5.Lcd.print(" Seconds");
+
+  } // end 1 second
 }
 
 int recvWithStartEndMarkers() // function to read from serial Receive with start- and end-markers
@@ -55,11 +100,12 @@ int recvWithStartEndMarkers() // function to read from serial Receive with start
     // check to see if we timed out return 0 if all is ok return 1 if timeout occured
     if (millis() > (t_start + timeout_ms))
     {
-      M5.Lcd.setCursor(10, 20);
+      M5.Lcd.setCursor(10, 90);
+      M5.Lcd.setTextColor(RED);
       M5.Lcd.print("<M5 timedout and needs a reboot>");
       Serial.print("<M5 timedout and needs a reboot>");
       Serial1.write("<M5 timedout and needs a reboot>");
-      Serial1.flush();
+      // Serial1.flush();
       return 1;
     }
 
@@ -102,54 +148,59 @@ void showNewData()
 
     if (!strcmp(receivedChars, "11"))
     { // if <11> is sent: both relays on
-      M5.Lcd.setCursor(10, 40);
+      M5.Lcd.setCursor(10, 70);
       M5.Lcd.print("RELAY_1 STATE IS NOW:  ON");
-      M5.Lcd.setCursor(10, 50);
+      M5.Lcd.setCursor(10, 80);
       M5.Lcd.print("RELAY_2 STATE IS NOW:  ON");
       digitalWrite(RELAY_1, HIGH);
       digitalWrite(RELAY_2, HIGH);
       Serial1.write("<11>"); // send a message back that shows the current state of the relay
-      Serial1.flush();
+                             // Serial1.flush();
       Serial.println("RELAY_1 AND RELAY_2 STATE IS NOW: ON");
     }
 
     if (!strcmp(receivedChars, "00"))
     { // if <00> is sent: both relays off
-      M5.Lcd.setCursor(10, 40);
+      M5.Lcd.setCursor(10, 70);
       M5.Lcd.print("RELAY_1 STATE IS NOW: OFF");
-      M5.Lcd.setCursor(10, 50);
+      M5.Lcd.setCursor(10, 80);
       M5.Lcd.print("RELAY_2 STATE IS NOW: OFF");
       digitalWrite(RELAY_1, LOW);
       digitalWrite(RELAY_2, LOW);
       Serial1.write("<00>"); // send a message back that shows the current state of the relay
-      Serial1.flush();
+                             // Serial1.flush();
       Serial.println("RELAY_1 AND RELAY_2 STATE IS NOW: OFF");
     }
 
     if (!strcmp(receivedChars, "01"))
     { // if <01> is sent: relay 2 is off and relay 1 is on
-      M5.Lcd.setCursor(10, 40);
+      M5.Lcd.setCursor(10, 70);
       M5.Lcd.print("RELAY_1 STATE IS NOW:  ON");
-      M5.Lcd.setCursor(10, 50);
+      M5.Lcd.setCursor(10, 80);
       M5.Lcd.print("RELAY_2 STATE IS NOW: OFF");
       digitalWrite(RELAY_1, HIGH);
       digitalWrite(RELAY_2, LOW);
       Serial1.write("<01>"); // send a message back that shows the current state of the relay
-      Serial1.flush();
+                             // Serial1.flush();
       Serial.println("RELAY_1 STATE IS NOW: ON");
     }
 
     if (!strcmp(receivedChars, "10"))
     { // if <10> is sent: relay 2 is on and relay 1 is off
-      M5.Lcd.setCursor(10, 50);
+      M5.Lcd.setCursor(10, 70);
       M5.Lcd.print("RELAY_2 STATE IS NOW:  ON");
-      M5.Lcd.setCursor(10, 40);
+      M5.Lcd.setCursor(10, 80);
       M5.Lcd.print("RELAY_1 STATE IS NOW: OFF");
       digitalWrite(RELAY_2, HIGH);
       digitalWrite(RELAY_1, LOW);
       Serial1.write("<10>"); // send a message back that shows the current state of the relay
-      Serial1.flush();
+                             // Serial1.flush();
       Serial.println("RELAY_2 STATE IS NOW: ON");
+    }
+
+    if (!strcmp(receivedChars, "f"))
+    { // if <f> is sent: flusg Serial1 Write
+      Serial1.flush();
     }
 
     newData = false;
@@ -158,6 +209,7 @@ void showNewData()
 
 void loop()
 {
+  elapsedTime();
   recvWithStartEndMarkers();
   showNewData();
 }
